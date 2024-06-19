@@ -1,4 +1,27 @@
-<h1>Webfeather Zero</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webfeather Zero</title>
+    <style>
+        .header {
+            position: relative;
+        }
+        .logout {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+    </style>
+</head>
+<div class="header">
+    <h1>Webfeather Zero</h1>
+    <form method="POST" class="logout">
+        <input type="submit" name="logout" value="Выйти" />
+    </form>
+</div>
+
 
 <?php
 ini_set('display_errors', '1');
@@ -36,7 +59,7 @@ if (!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
 
 $currentPath = isset($_GET['path']) ? $_GET['path'] : $rootDir;
 $currentPath = realpath($currentPath);
-if (strpos($currentPath, $rootDir) !== 0 || strpos($currentPath, '/cgi-bin') !== false || strpos($currentPath, '/wf-templates') !== false) {
+if (strpos($currentPath, $rootDir) !== 0 || strpos($currentPath, '/cgi-bin') !== false || strpos($currentPath, '/wf-template') !== false) {
     $currentPath = $rootDir;
 }
 
@@ -49,14 +72,14 @@ if (isset($_POST['save'])) {
     $endMarker = '<!-- ~wf-c-e -->';
 
     if ($overwriteFromTemplate) {
-        $templateContent = readFileContent($rootDir . '/wf-templates/index.html');
+        $templateContent = readFileContent($rootDir . '/wf-template/index.html');
         $newContent = str_replace($startMarker . $endMarker, $startMarker . $contentToInsert . $endMarker, $templateContent);
         saveFileContent($filePath, $newContent);
     } else {
         if (file_exists($filePath)) {
             $content = readFileContent($filePath);
             if (empty(trim($content))) {
-                $templateContent = readFileContent($rootDir . '/wf-templates/index.html');
+                $templateContent = readFileContent($rootDir . '/wf-template/index.html');
                 $newContent = str_replace($startMarker . $endMarker, $startMarker . $contentToInsert . $endMarker, $templateContent);
             } else {
                 $startPos = strpos($content, $startMarker) + strlen($startMarker);
@@ -166,4 +189,14 @@ if (isset($_POST['delete']) && isset($_POST['nameToRemove'])) {
     }
 }
 
+
+
+
+// fast logout script
+if (isset($_POST['logout'])) {
+    session_destroy();
+    unset($_POST['logout']);
+    header('Location: admin.php');
+}
 ?>
+<p><i>&copy; Qwaderton, Forever</i></p>
