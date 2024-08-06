@@ -104,7 +104,7 @@ if (isset($_POST['save'])) {
 }
 
 
-$items = getDirectoryContents($currentPath);
+$items = is_dir($currentPath) ? getDirectoryContents($currentPath) : getDirectoryContents($rootDir);
 
 echo '<form method="GET"><label>Текущий путь: ' . htmlspecialchars($currentPath) . '/</label>';
 echo '<select name="path" onchange="this.form.submit()">';
