@@ -1,3 +1,9 @@
+> [!WARNING]
+> # Архивировано
+> Основная разработка перемещается на [Codeberg](https://codeberg.org/Qwaderton/Webfeather-Zero)
+
+---
+
 # Webfeather Zero
 
 [![Chat on discord](https://img.shields.io/discord/1183477399208345771?color=blue8&label=Discord&logo=discord&style=for-the-badge)](https://discord.gg/qtjrKnCk8y)
