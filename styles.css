@@ -1,0 +1,45 @@
+* {
+    box-sizing: border-boxs;
+}
+
+body {
+    background: #111;
+    color: #eee;
+    font-family: monospace;
+    font-size: 1.2rem;
+    max-width: 800px;
+    padding: 0 1rem;
+    margin: 0 auto;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+textarea {
+    width: min(600px, 100%);
+    height: 300px;
+    border: 1px solid #ddd;
+    background: #121212;
+    font-size: 1.3rem;
+    color: #fff
+}
+input, select, button {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    color: #eee;
+}
+button.logout {
+    background: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.folder {
+    font-weight: bold;
+    color: blue;
+}
+.file {
+    color: white;
+}

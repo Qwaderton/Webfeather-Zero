@@ -1,6 +1,6 @@
 <?php
-$adminPassword = 'your_password'; // Задайте пароль администратора
-$rootDir = $_SERVER['DOCUMENT_ROOT']; // Корневой каталог сайта
-$overwriteFromTemplate = true; // Перезаписывать ли файлы из шаблона
-$enableNicedit = true; // Включить ли графический WYSIWYG редактор NicEdit
+$adminPasswordHash = password_hash('your_password', PASSWORD_DEFAULT); 
+$rootDir = $_SERVER['DOCUMENT_ROOT'];
+$overwriteFromTemplate = true;
+$enableNicedit = true;
 ?>
