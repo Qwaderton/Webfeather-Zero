@@ -7,6 +7,7 @@ body {
     color: #eee;
     font-family: monospace;
     font-size: 1.2rem;
+    width: fit-content;
     max-width: 800px;
     padding: 0 1rem;
     margin: 0 auto;
@@ -21,7 +22,7 @@ textarea {
     height: 300px;
     border: 1px solid #ddd;
     background: #121212;
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: #fff
 }
 input, select, button {
@@ -29,6 +30,18 @@ input, select, button {
     border: 1px solid #ddd;
     padding: 5px 10px;
     color: #eee;
+}
+input:active, select:active, button:active {
+    border: 1px dashed #ddd;
+}
+input:focus, select:focus, button:focus,
+textarea:focus {
+    outline: 1px solid #ddd;
+    border: 1px solid #ddd;
+    accent-color: #ddd;
+}
+*:focus {
+    outline: 2px solid #ddd;
 }
 button.logout {
     background: red;

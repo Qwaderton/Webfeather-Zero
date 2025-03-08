@@ -1,64 +1,79 @@
-<!DOCTYPE html charset>
-<!-- Данный шаблон содержит будущий функционал, который пока не реализован -->
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Webfeather CMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
     <style>
         body {
-            font-family: Arial, sans-berif;
+            background: #000;
+            color: #fff;
+            font-family: monospace;
+            font-size: 1.2rem;
+            line-height: 1.6rem;
         }
+
         table {
             width: 100%;
-            border-collapse: collapse;
+            height: 100%;
         }
+
         td {
-            padding: 10px;
+            padding: 0 0 0 15px;
         }
-        .header, .footer {
-            background-color: #f1f1f1;
+
+        .header {
             text-align: center;
         }
-        .navigation {
-            background-color: #e7e7e7;
+
+        .footer {
+            font-size: 1rem;
+            line-height: 1.2rem;
+            color: #fffa;
         }
-        .content {
-            min-height: 400px;
-        } 
-        a, a:visited {
-            color: #0066cc;
+
+        .footer p {
+            display: inline-block;
+        }
+
+        a,
+        a:visited {
+            color: #a0d;
         }
     </style>
 </head>
+
 <body>
     <table border="1">
-        <tr class="header">
-            <td colspan="2">
-                <!-- ~wf-h-b --><h1>Ваш сайт!</h1><!-- ~wf-h-e -->
+        <tr>
+            <td class="header" colspan="2">
+                <h1>Hello Webfeather!</h1>
             </td>
         </tr>
         <tr>
-            <td class="navigation" width="20%">
+            <td style="width: 200px;">
                 <ul>
-                    <!-- ~wf-n-b -->
-                    <li><a href="index.html">Привет!</a></li>
-                    <li><a href="features.html">Добавьте</a></li>
-                    <li><a href="download.html">больше</a></li>
-                    <li><a href="support.html">страниц</a></li>
-                    <li><a href="contact.html">в шаблон!</a></li>
-                    <!-- ~wf-n-e -->
+                    <li>
+                        <a href="#">Projects</a>
+                    </li>
+                    <li>
+                        <a href="#">About me</a>
+                    </li>
                 </ul>
             </td>
-            <td class="content">
-                <!-- ~wf-c-b --><!-- ~wf-c-e -->
+            <td>
+                <!--wfcb--><!--wfcb-->
             </td>
         </tr>
-        <tr class="footer">
-            <td colspan="2">
-                <!-- ~wf-f-b --><p>&copy; Автор сайта, 2024</p><!-- ~wf-f-e -->
-                <img src="https://webfeathercms.qwa.su/antipixel.png" alt="Created with Webfeather CMS">
+        <tr>
+            <td class="footer" colspan="2">
+                <p>Your website &copy; You 2025</p> |
+                <p>Default Black (Copyleft) atarwn 2025</p>
             </td>
         </tr>
     </table>
+    <p style="text-align: end;"><a href="https://webfeather.qwa.su">Webfeather</a> powered</p>
 </body>
+
 </html>
