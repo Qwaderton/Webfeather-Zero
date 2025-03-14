@@ -7,24 +7,32 @@ require_once 'config.php';
 require_once 'functions.php';
 
 $csrfToken = generateCsrfToken();
+$error = '';
 
-# Проверка аутентификации
+// Authentication Check
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
-    if (authenticate($_POST['password'])) {
-        $_SESSION['authenticated'] = true;
+    if (!verifyCsrfToken($_POST['csrf_token'])) {
+        $error = '❌ Неверный CSRF токен';
     } else {
-        $error = '❌ Неправильный пароль';
+        if (authenticate($_POST['password'])) {
+            $_SESSION['authenticated'] = true;
+            // Regenerate session ID to prevent fixation
+            session_regenerate_id(true);
+        } else {
+            $error = '❌ Неправильный пароль';
+        }
     }
 }
 
-# Выход из системы
+// Logout
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout']) && verifyCsrfToken($_POST['csrf_token'])) {
+    $_SESSION = [];
     session_destroy();
     header('Location: admin.php');
     exit;
 }
 
-# Показать окно входа
+// Show login form if not authenticated
 if (empty($_SESSION['authenticated'])) {
 ?>
     <!DOCTYPE html>
@@ -58,56 +66,79 @@ if (empty($_SESSION['authenticated'])) {
     exit;
 }
 
-# Задать текущий путь
+// Set current path and validate
 $currentPath = $_GET['path'] ?? $rootDir;
-$currentPath = realpath($currentPath);
+$currentPath = realpath($currentPath) ?: $rootDir;
 if (!isValidPath($currentPath, $rootDir)) {
     $currentPath = $rootDir;
 }
 
+// Determine management path (parent if current is a file)
+$managementPath = is_dir($currentPath) ? $currentPath : dirname($currentPath);
+if (!isValidPath($managementPath, $rootDir)) {
+    $managementPath = $rootDir;
+}
+
+$items = getDirectoryContents($managementPath);
 $parentPath = dirname($currentPath);
 
-$items = is_dir($currentPath) ? getDirectoryContents($currentPath) : [];
-
+// Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrfToken($_POST['csrf_token'])) {
-    if (isset($_POST['create']) && !empty($_POST['newName'])) {
-        $newPath = $currentPath . '/' . basename($_POST['newName']);
-        createFileOrDir($newPath, isset($_POST['isDir']));
-    }
+    try {
+        if (isset($_POST['create']) && !empty($_POST['newName'])) {
+            $newName = trim($_POST['newName']);
+            if (empty($newName)) {
+                throw new Exception("Имя не может быть пустым");
+            }
+            $newPath = $managementPath . '/' . basename($newName);
+            createFileOrDir($newPath, isset($_POST['isDir']));
+        }
 
-    if (isset($_POST['delete']) && !empty($_POST['deleteName'])) {
-        $deletePath = realpath($currentPath . '/' . $_POST['deleteName']);
-        deleteFileOrDir($deletePath);
-    }
+        if (isset($_POST['delete']) && !empty($_POST['deleteName'])) {
+            $deletePath = realpath($managementPath . '/' . $_POST['deleteName']);
+            if (!$deletePath || !isValidPath($deletePath, $rootDir)) {
+                throw new Exception("Недопустимый путь");
+            }
+            deleteFileOrDir($deletePath);
+        }
 
-    if (isset($_POST['move']) && !empty($_POST['oldName']) && !empty($_POST['newName'])) {
-        $oldPath = realpath($currentPath . '/' . $_POST['oldName']);
-        $newPath = $currentPath . '/' . basename($_POST['newName']);
-        moveFileOrDir($oldPath, $newPath);
-    }
+        if (isset($_POST['move']) && !empty($_POST['oldName']) && !empty($_POST['newName'])) {
+            $oldPath = realpath($managementPath . '/' . $_POST['oldName']);
+            $newName = trim($_POST['newName']);
+            if (empty($newName)) {
+                throw new Exception("Новое имя не может быть пустым");
+            }
+            $newPath = $managementPath . '/' . basename($newName);
+            if (!$oldPath || !isValidPath($oldPath, $rootDir)) {
+                throw new Exception("Недопустимый исходный путь");
+            }
+            if (!isValidPath($newPath, $rootDir)) {
+                throw new Exception("Недопустимый целевой путь");
+            }
+            moveFileOrDir($oldPath, $newPath);
+        }
 
-
-    if (isset($_POST['save'])) {
-        try {
+        if (isset($_POST['save'])) {
             $filePath = $_POST['filePath'];
+            $realFilePath = realpath($filePath);
+            if (!$realFilePath || !isValidPath($realFilePath, $rootDir)) {
+                throw new Exception("Недопустимый путь к файлу");
+            }
             $content = $_POST['content'];
             $mode = $_POST['mode'];
-
             if ($mode === 'content') {
-                updateContentWithTemplate($content, $filePath);
+                updateContentWithTemplate($content, $realFilePath);
             } else {
-                saveFileContent($filePath, $content);
+                saveFileContent($realFilePath, $content);
             }
-
-            header("Location: " . $_SERVER['REQUEST_URI']);
-            exit;
-        } catch (Exception $e) {
-            $error = "Ошибка сохранения: " . $e->getMessage();
         }
-    }
 
-    header('Location: ' . $_SERVER['REQUEST_URI']);
-    exit;
+        // Redirect to avoid resubmission
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit;
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
 }
 ?>
 

@@ -2,7 +2,7 @@
     box-sizing: border-boxs;
 }
 
-body {
+html, body {
     background: #111;
     color: #eee;
     font-family: monospace;

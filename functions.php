@@ -1,4 +1,6 @@
 <?php
+require "lib/ParCon.php";
+
 function authenticate($password) {
     require 'config.php';
     return password_verify($password, $adminPasswordHash);
@@ -19,12 +21,40 @@ function saveFileContent($filePath, $content) {
     return file_put_contents($filePath, $content) !== false;
 }
 
-function createFileOrDir($path, $isDir = false) {
-    return $isDir ? mkdir($path) : touch($path);
+function deleteFileOrDir($path) {
+    if (!file_exists($path)) {
+        throw new Exception("Файл или директория не существует");
+    }
+    if (is_dir($path)) {
+        $files = array_diff(scandir($path), ['.', '..']);
+        if (!empty($files)) {
+            throw new Exception("Директория не пуста");
+        }
+        if (!rmdir($path)) {
+            throw new Exception("Ошибка удаления директории");
+        }
+    } else {
+        if (!unlink($path)) {
+            throw new Exception("Ошибка удаления файла");
+        }
+    }
+    return true;
 }
 
-function deleteFileOrDir($path) {
-    return is_dir($path) ? rmdir($path) : unlink($path);
+function createFileOrDir($path, $isDir = false) {
+    if (file_exists($path)) {
+        throw new Exception("Файл или директория уже существует");
+    }
+    if ($isDir) {
+        if (!mkdir($path, 0755, true)) {
+            throw new Exception("Ошибка создания директории");
+        }
+    } else {
+        if (!touch($path)) {
+            throw new Exception("Ошибка создания файла");
+        }
+    }
+    return true;
 }
 
 function moveFileOrDir($oldPath, $newPath) {
@@ -48,43 +78,14 @@ function verifyCsrfToken($token) {
 }
 
 
-
 function htmlToMarkdown($html) {
-    // Convert headers
-    $html = preg_replace('/<h1>(.*?)<\/h1>/', "# $1\n", $html);
-    $html = preg_replace('/<h2>(.*?)<\/h2>/', "## $1\n", $html);
-    $html = preg_replace('/<h3>(.*?)<\/h3>/', "### $1\n", $html);
-    $html = preg_replace('/<h4>(.*?)<\/h4>/', "#### $1\n", $html);
-    $html = preg_replace('/<h5>(.*?)<\/h5>/', "##### $1\n", $html);
-    $html = preg_replace('/<h6>(.*?)<\/h6>/', "###### $1\n", $html);
+    $converter = new HTML2MD();
+    return $converter->parse($html);
+}
 
-    // Convert bold and italic
-    $html = preg_replace('/<strong>(.*?)<\/strong>/', '**$1**', $html);
-    $html = preg_replace('/<em>(.*?)<\/em>/', '*$1*', $html);
-
-    // Convert images and links
-    $html = preg_replace('/<img src="(.*?)" alt="(.*?)"\s*\/?>/', '![$2]($1)', $html);
-    $html = preg_replace('/<a href="(.*?)">(.*?)<\/a>/', '[$2]($1)', $html);
-
-    // Convert lists
-    $html = preg_replace_callback('/<ul>(.*?)<\/ul>/s', function($m) {
-        return preg_replace('/<li>(.*?)<\/li>/', "* $1\n", $m[1]);
-    }, $html);
-    $html = preg_replace_callback('/<ol>(.*?)<\/ol>/s', function($m) {
-        $count = 1;
-        return preg_replace_callback('/<li>(.*?)<\/li>/', function($m2) use (&$count) {
-            return $count++ . ". $m2[1]\n";
-        }, $m[1]);
-    }, $html);
-
-    // Convert paragraphs and line breaks
-    $html = preg_replace('/<p>(.*?)<\/p>/s', "$1\n\n", $html);
-    $html = str_replace(['<br>', '<br/>', '<br />'], "\n", $html);
-
-    // Remove remaining HTML tags
-    $html = strip_tags($html);
-
-    return trim($html);
+function markdownToHtml($markdown) {
+    $parser = new MD2HTML();
+    return $parser->parse($markdown);
 }
 
 function extractContentFromHtml($html) {
@@ -123,4 +124,3 @@ function updateContentWithTemplate($markdown, $targetPath) {
 function isTemplateBased($content) {
     return strpos($content, '<!--wfcb-->') !== false && strpos($content, '<!--wfce-->') !== false;
 }
-?>
